@@ -1,15 +1,7 @@
 [
-<<<<<<< HEAD
-  {
-    "name": "Jérôme",
-    "date": "2000-09-15"
-  }
-]
-=======
   { "name": "Alie Dupont", "date": "09-12" },
   { "name": "Jean Martin", "date": "09-14" },
   { "name": "Sophie Durand", "date": "09-16" },
   { "name": "Paul Bernard", "date": "09-18" },
   { "name": "Lucie Petit", "date": "09-19" }
 ]
->>>>>>> 1ee673f (Mises à jour site et maintenance)
