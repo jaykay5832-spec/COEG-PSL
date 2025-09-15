@@ -153,8 +153,8 @@
         </div>
         <!-- Slide 2 -->
         <div class="news-item">
-          <h3>🚆 Perturbations sur la ligne L</h3>
-          <p>En raison de travaux, des retards sont à prévoir sur la ligne L jusqu'à 18h.</p>
+          <h3 id="travaux-title">🚆 Travaux sur la ligne L</h3>
+          <p id="travaux-text">En raison de travaux, des retards sont à prévoir sur la ligne L jusqu'à 18h.</p>
         </div>
         <!-- Slide Anniversaires -->
         <div class="news-item birthday-slide">
@@ -213,15 +213,21 @@
 
       const today = new Date();
       today.setHours(0,0,0,0);
-
       const nextWeek = new Date(today);
       nextWeek.setDate(today.getDate() + 7);
+      const currentYear = today.getFullYear();
 
-      // Filtrer les anniversaires dans les 7 jours à venir
+      // Filtrer et trier les anniversaires dans les 7 jours à venir
       const upcoming = birthdays.filter(b => {
-        const date = new Date(b.date);
-        date.setFullYear(today.getFullYear()); // Pour gérer les années
+        const [month, day] = b.date.split('-');
+        const date = new Date(currentYear, parseInt(month,10)-1, parseInt(day,10));
         return date >= today && date <= nextWeek;
+      }).sort((a, b) => {
+        const [monthA, dayA] = a.date.split('-');
+        const [monthB, dayB] = b.date.split('-');
+        const dateA = new Date(currentYear, parseInt(monthA,10)-1, parseInt(dayA,10));
+        const dateB = new Date(currentYear, parseInt(monthB,10)-1, parseInt(dayB,10));
+        return dateA - dateB;
       });
 
       const list = document.getElementById('birthday-list');
@@ -230,12 +236,13 @@
         list.innerHTML = '<div>Aucun anniversaire dans les 7 jours à venir.</div>';
       } else {
         upcoming.forEach(b => {
-          const date = new Date(b.date);
-          date.setFullYear(today.getFullYear());
+          const [month, day] = b.date.split('-');
+          const dateStr = `${day}/${month}`;
+          const date = new Date(currentYear, parseInt(month,10)-1, parseInt(day,10));
           const isToday = date.getTime() === today.getTime();
           const div = document.createElement('div');
           div.className = 'birthday-person' + (isToday ? ' birthday-today' : '');
-          div.textContent = `${date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })} - ${b.name}` + (isToday ? ' 🎉' : '');
+          div.textContent = `${dateStr} - ${b.name}` + (isToday ? ' 🎉' : '');
           list.appendChild(div);
         });
       }
@@ -257,12 +264,28 @@
       }
     }
 
+    // Charger et afficher le texte Travaux dans le carrousel
+    async function loadTravauxNews() {
+      try {
+        const response = await fetch('./anniversaires-app/src/data/travaux.json');
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('travaux-title').textContent = data.title || '🚆 Travaux sur la ligne L';
+          document.getElementById('travaux-text').textContent = data.text || "En raison de travaux, des retards sont à prévoir sur la ligne L jusqu'à 18h.";
+        }
+      } catch (e) {
+        document.getElementById('travaux-title').textContent = '🚆 Travaux sur la ligne L';
+        document.getElementById('travaux-text').textContent = "En raison de travaux, des retards sont à prévoir sur la ligne L jusqu'à 18h.";
+      }
+    }
+
     // Démarrer le carrousel
     rotateNews();
 
     // Appeler les fonctions au chargement
     loadBirthdays();
     loadServiceNews();
+    loadTravauxNews();
   </script>
 </body>
 </html>
