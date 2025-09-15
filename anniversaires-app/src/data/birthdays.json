@@ -1,7 +1,22 @@
 [
-  { "name": "Alie Dupont", "date": "09-12" },
-  { "name": "Jean Martin", "date": "09-14" },
-  { "name": "Sophie Durand", "date": "09-16" },
-  { "name": "Paul Bernard", "date": "09-18" },
-  { "name": "Lucie Petit", "date": "09-19" }
+  {
+    "name": "Alie Dupont",
+    "date": "09-12"
+  },
+  {
+    "name": "Jean Martin",
+    "date": "09-14"
+  },
+  {
+    "name": "Paul Bernard",
+    "date": "09-18"
+  },
+  {
+    "name": "Lucie Petit",
+    "date": "09-19"
+  },
+  {
+    "name": "Jerome",
+    "date": "09-16"
+  }
 ]
