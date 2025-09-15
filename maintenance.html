@@ -130,6 +130,7 @@
   <div class="container">
     <div class="encart">
       <h2>Actualités du service</h2>
+      <input type="text" id="service-news-title" placeholder="Titre d'actualité..." style="margin-bottom:1vh;" />
       <textarea id="service-news" placeholder="Texte d'actualité..." style="height:80px;resize:vertical;"></textarea>
       <div style="display:flex;flex-wrap:wrap;gap:1vw;align-items:center;">
         <button onclick="updateServiceNews()" class="btn btn-primary">Mettre à jour</button>
@@ -153,6 +154,8 @@
     <div class="encart">
       <h2>Liste des anniversaires enregistrés</h2>
       <div class="birthday-list" id="birthday-list"></div>
+      <button onclick="updateBirthdaysGithub()" class="btn btn-github">Mettre à jour les anniversaires sur GitHub</button>
+      <div id="birthdays-msg" class="msg"></div>
     </div>
 
     <div class="encart">
@@ -167,6 +170,7 @@
     const githubOwner = 'jaykay5832-spec';
     const githubRepo = 'COEG-PSL';
     const githubNewsFilePath = 'anniversaires-app/src/data/news.json';
+    const githubBirthdaysFilePath = 'anniversaires-app/src/data/birthdays.json';
     const githubBranch = 'main';
 
     let birthdays = [];
@@ -177,22 +181,25 @@
         const response = await fetch('./anniversaires-app/src/data/news.json');
         if (response.ok) {
           const data = await response.json();
+          document.getElementById('service-news-title').value = data.title || '';
           document.getElementById('service-news').value = data.text || '';
         }
       } catch (e) {
+        document.getElementById('service-news-title').value = '';
         document.getElementById('service-news').value = '';
       }
     }
     fetchServiceNews();
 
     async function updateServiceNews() {
+      const title = document.getElementById('service-news-title').value.trim();
       const text = document.getElementById('service-news').value.trim();
-      if (!text) {
-        document.getElementById('news-msg').textContent = "Veuillez entrer un texte d'actualité.";
+      if (!title || !text) {
+        document.getElementById('news-msg').textContent = "Veuillez entrer un titre et un texte d'actualité.";
         return;
       }
       // Stockage local (export manuel ou via GitHub si activé)
-      const news = { text };
+      const news = { title, text };
       document.getElementById('news-msg').textContent = "Texte mis à jour localement. Utilisez l'export pour sauvegarder sur GitHub.";
       // Affichage du JSON à exporter
       const textarea = document.getElementById('exported-json');
@@ -203,13 +210,14 @@
 
     async function updateServiceNewsGithub() {
       const token = document.getElementById('github-token').value.trim();
+      const title = document.getElementById('service-news-title').value.trim();
       const text = document.getElementById('service-news').value.trim();
       if (!token) {
         document.getElementById('news-msg').textContent = "Veuillez entrer votre token GitHub.";
         return;
       }
-      if (!text) {
-        document.getElementById('news-msg').textContent = "Veuillez entrer un texte d'actualité.";
+      if (!title || !text) {
+        document.getElementById('news-msg').textContent = "Veuillez entrer un titre et un texte d'actualité.";
         return;
       }
       document.getElementById('news-msg').textContent = "Mise à jour en cours...";
@@ -231,7 +239,7 @@
         return;
       }
       // 2. Mettre à jour le fichier
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify({ text }, null, 2))));
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify({ title, text }, null, 2))));
       const body = {
         message: 'Mise à jour des actualités via maintenance.html',
         content,
@@ -338,6 +346,59 @@
       textarea.value = JSON.stringify(birthdays, null, 2);
       textarea.select();
       document.getElementById('msg').textContent = "Copiez le contenu et remplacez birthdays.json sur GitHub.";
+    }
+
+    async function updateBirthdaysGithub() {
+      const token = document.getElementById('github-token').value.trim();
+      if (!token) {
+        document.getElementById('birthdays-msg').textContent = "Veuillez entrer votre token GitHub.";
+        return;
+      }
+      document.getElementById('birthdays-msg').textContent = "Mise à jour en cours...";
+      // 1. Récupérer le SHA du fichier
+      const apiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${githubBirthdaysFilePath}`;
+      let sha = '';
+      try {
+        const res = await fetch(apiUrl, {
+          headers: { Authorization: `token ${token}` }
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Erreur récupération SHA');
+        }
+        const data = await res.json();
+        sha = data.sha;
+      } catch (e) {
+        document.getElementById('birthdays-msg').textContent = `Erreur d'accès au fichier sur GitHub : ${e.message}`;
+        return;
+      }
+      // 2. Mettre à jour le fichier
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(birthdays, null, 2))));
+      const body = {
+        message: 'Mise à jour des anniversaires via maintenance.html',
+        content,
+        sha,
+        branch: githubBranch
+      };
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          document.getElementById('birthdays-msg').textContent = "Mise à jour réussie sur GitHub !";
+          document.getElementById('github-token').value = '';
+        } else {
+          const err = await res.json();
+          document.getElementById('birthdays-msg').textContent = `Erreur lors de la mise à jour sur GitHub : ${err.message}`;
+        }
+      } catch (e) {
+        document.getElementById('birthdays-msg').textContent = `Erreur réseau ou API GitHub : ${e.message}`;
+      }
     }
   </script>
 </body>

@@ -144,13 +144,12 @@
 <body>
   <div class="section" id="local-news">
     <h2>📰 Actualités du service</h2>
-    <div id="service-news-text" style="font-size:2vw;margin-bottom:2vh;"></div>
     <div class="carrousel" id="news-carrousel">
       <div class="contenu-carrousel">
         <!-- Slide 1 -->
         <div class="news-item active">
-          <h3>Bienvenue à la gare Saint-Lazare !</h3>
-          <p>Retrouvez ici les dernières actualités et informations en temps réel.</p>
+          <h3 id="service-news-title">Bienvenue à la gare Saint-Lazare !</h3>
+          <p id="service-news-text">Retrouvez ici les dernières actualités et informations en temps réel.</p>
         </div>
         <!-- Slide 2 -->
         <div class="news-item">
@@ -242,16 +241,19 @@
       }
     }
 
-    // Charger et afficher le texte d'actualité
+    // Charger et afficher le texte d'actualité dans le carrousel
     async function loadServiceNews() {
       try {
         const response = await fetch('./anniversaires-app/src/data/news.json');
         if (response.ok) {
           const data = await response.json();
-          document.getElementById('service-news-text').textContent = data.text || '';
+          // Remplace le texte du carrousel
+          document.getElementById('service-news-title').textContent = data.title || 'Bienvenue à la gare Saint-Lazare !';
+          document.getElementById('service-news-text').textContent = data.text || 'Retrouvez ici les dernières actualités et informations en temps réel.';
         }
       } catch (e) {
-        document.getElementById('service-news-text').textContent = '';
+        document.getElementById('service-news-title').textContent = 'Bienvenue à la gare Saint-Lazare !';
+        document.getElementById('service-news-text').textContent = 'Retrouvez ici les dernières actualités et informations en temps réel.';
       }
     }
 
