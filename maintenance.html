@@ -19,15 +19,76 @@
     h1 {
       margin-top: 2vh;
       font-size: 2.5em;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+    .container {
+      width: 95vw;
+      max-width: 650px;
+      margin: 3vh auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5vh;
+    }
+    .encart {
+      background: #333;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      padding: 2vh 2vw;
+      margin-bottom: 0.5vh;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5vh;
+    }
+    .encart h2 {
+      margin: 0 0 1vh 0;
+      font-size: 1.4em;
+      color: #FFD700;
+      letter-spacing: 0.5px;
+    }
+    textarea, input[type="text"], input[type="password"] {
+      width: 100%;
+      max-width: 600px;
+      font-size: 1.1em;
+      padding: 0.5em;
+      border-radius: 5px;
+      border: 1px solid #888;
+      background: #222;
+      color: #fff;
+      margin-bottom: 1vh;
+      box-sizing: border-box;
+    }
+    .btn {
+      padding: 0.5em 1.5em;
+      font-size: 1em;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      margin-right: 1vw;
+      margin-bottom: 1vh;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #0055aa;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #0077dd;
+    }
+    .btn-github {
+      background: #24292f;
+      color: #fff;
+    }
+    .btn-github:hover {
+      background: #444;
     }
     .birthday-list {
-      margin: 2vh 0;
-      width: 90vw;
-      max-width: 600px;
-      background: #333;
-      border-radius: 10px;
-      padding: 2vh 2vw;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      margin: 1vh 0 0 0;
+      width: 100%;
+      background: none;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
     }
     .birthday-item {
       display: flex;
@@ -35,6 +96,7 @@
       align-items: center;
       padding: 1vh 0;
       border-bottom: 1px solid #444;
+      font-size: 1.1em;
     }
     .birthday-item:last-child {
       border-bottom: none;
@@ -52,240 +114,62 @@
     .delete-btn:hover {
       background: #f00;
     }
-    .add-form {
-      margin: 2vh 0;
-      display: flex;
-      gap: 1vw;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .add-form input {
-      padding: 0.5em;
-      font-size: 1em;
-      border-radius: 5px;
-      border: 1px solid #888;
-    }
-    .add-form button {
-      background: #090;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      padding: 0.5em 1em;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .add-form button:hover {
-      background: #0c0;
-    }
-    .msg {
-      margin: 1vh 0;
+    .msg, #news-msg {
       color: #FFD700;
       font-weight: bold;
-    }
-    .news-section {
-      width: 90vw;
-      max-width: 600px;
-      margin: 2vh 0;
-      background: #333;
-      border-radius: 10px;
-      padding: 2vh 2vw;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    .news-section h2 {
-      margin-top: 0;
-    }
-    .news-section textarea {
-      width: 100%;
-      height: 80px;
-      font-size: 1.1em;
-      padding: 0.5em;
-      border-radius: 5px;
-      border: 1px solid #888;
-      resize: vertical;
-    }
-    .news-section button {
       margin-top: 1vh;
-      padding: 0.5em 1.5em;
-      font-size: 1em;
-      background: #0055aa;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.2s;
     }
-    .news-section button:hover {
-      background: #0077cc;
+    @media (max-width: 600px) {
+      .container { max-width: 98vw; }
+      textarea, input[type="text"], input[type="password"] { max-width: 98vw; }
     }
   </style>
 </head>
 <body>
-  <h1>Maintenance des Anniversaires</h1>
-  <div class="news-section" style="width:90vw;max-width:600px;margin:2vh 0;background:#333;border-radius:10px;padding:2vh 2vw;box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    <h2 style="margin-top:0;">Actualités du service</h2>
-    <textarea id="service-news" style="width:100%;height:80px;font-size:1.1em;padding:0.5em;border-radius:5px;border:1px solid #888;resize:vertical;"></textarea>
-    <button onclick="updateServiceNews()" style="margin-top:1vh;padding:0.5em 1.5em;font-size:1em;background:#0055aa;color:#fff;border:none;border-radius:5px;cursor:pointer;">Mettre à jour</button>
-    <button onclick="updateServiceNewsGithub()" style="margin-top:1vh;padding:0.5em 1.5em;font-size:1em;background:#24292f;color:#fff;border:none;border-radius:5px;cursor:pointer;">Mettre à jour sur GitHub</button>
-    <div id="news-msg" style="color:#FFD700;font-weight:bold;margin-top:1vh;"></div>
-  </div>
+  <h1>Maintenance du site</h1>
+  <div class="container">
+    <div class="encart">
+      <h2>Actualités du service</h2>
+      <textarea id="service-news" placeholder="Texte d'actualité..." style="height:80px;resize:vertical;"></textarea>
+      <div style="display:flex;flex-wrap:wrap;gap:1vw;align-items:center;">
+        <button onclick="updateServiceNews()" class="btn btn-primary">Mettre à jour</button>
+        <button onclick="updateServiceNewsGithub()" class="btn btn-github">Mettre à jour sur GitHub</button>
+      </div>
+      <label for="github-token" style="color:#FFD700;font-weight:bold;">Token GitHub (jamais public)</label>
+      <input type="password" id="github-token" placeholder="Token GitHub" />
+      <div id="news-msg"></div>
+    </div>
 
-  <div class="add-form" style="margin-top:3vh;">
-    <input type="text" id="name" placeholder="Nom" required aria-label="Nom" />
-    <input type="text" id="date" placeholder="JJ-MM" required aria-label="Jour et mois" pattern="^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$" style="width:120px;" />
-    <button onclick="addBirthday()">Ajouter</button>
+    <div class="encart">
+      <h2>Ajouter un anniversaire</h2>
+      <div class="add-form" style="margin-top:0;">
+        <input type="text" id="name" placeholder="Nom" required aria-label="Nom" />
+        <input type="text" id="date" placeholder="JJ-MM" required aria-label="Jour et mois" pattern="^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$" style="width:120px;max-width:120px;display:inline-block;" />
+        <button onclick="addBirthday()" class="btn btn-primary">Ajouter</button>
+      </div>
+      <div class="msg" id="msg"></div>
+    </div>
+
+    <div class="encart">
+      <h2>Liste des anniversaires enregistrés</h2>
+      <div class="birthday-list" id="birthday-list"></div>
+    </div>
+
+    <div class="encart">
+      <h2>Exporter les données</h2>
+      <button onclick="exportJSON()" class="btn btn-primary">Exporter le JSON</button>
+      <textarea id="exported-json" style="height:120px;display:none;"></textarea>
+    </div>
   </div>
-  <div class="msg" id="msg"></div>
-  <div class="birthday-list" id="birthday-list"></div>
-  <button onclick="exportJSON()" style="margin:2vh 0;padding:0.7em 1.5em;font-size:1em;background:#0055aa;color:#fff;border:none;border-radius:5px;cursor:pointer;">Exporter le JSON</button>
-  <textarea id="exported-json" style="width:90vw;max-width:600px;height:120px;margin:1vh 0;display:none;"></textarea>
-  <label for="github-token" style="color:#FFD700;font-weight:bold;">Token GitHub (jamais public)</label>
-  <input type="password" id="github-token" placeholder="Token GitHub" style="width:100%;max-width:600px;padding:0.5em;font-size:1.1em;border-radius:5px;border:1px solid #888;margin-bottom:1vh;" />
-  <button onclick="updateGithub()" style="margin:2vh 0;padding:0.7em 1.5em;font-size:1em;background:#24292f;color:#fff;border:none;border-radius:5px;cursor:pointer;">Mettre à jour sur GitHub</button>
 
   <script>
-    let birthdays = [];
-
     // Config GitHub
     const githubOwner = 'jaykay5832-spec';
     const githubRepo = 'COEG-PSL';
-    const githubFilePath = 'anniversaires-app/src/data/birthdays.json';
     const githubNewsFilePath = 'anniversaires-app/src/data/news.json';
     const githubBranch = 'main';
 
-    async function fetchBirthdays() {
-      try {
-        const response = await fetch('./anniversaires-app/src/data/birthdays.json');
-        birthdays = await response.json();
-        renderList();
-      } catch (e) {
-        document.getElementById('msg').textContent = "Erreur de chargement du fichier JSON.";
-      }
-    }
-
-    function renderList() {
-      const list = document.getElementById('birthday-list');
-      list.innerHTML = '';
-      if (birthdays.length === 0) {
-        list.innerHTML = '<div>Aucun anniversaire enregistré.</div>';
-        return;
-      }
-      // Tri chronologique sur tous les anniversaires
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const currentYear = today.getFullYear();
-      const sorted = birthdays.slice().sort((a, b) => {
-        const [monthA, dayA] = a.date.split('-');
-        const [monthB, dayB] = b.date.split('-');
-        const dateA = new Date(currentYear, parseInt(monthA,10)-1, parseInt(dayA,10));
-        const dateB = new Date(currentYear, parseInt(monthB,10)-1, parseInt(dayB,10));
-        // Si la date est déjà passée cette année, on la met à l'année suivante
-        if (dateA < today) dateA.setFullYear(currentYear + 1);
-        if (dateB < today) dateB.setFullYear(currentYear + 1);
-        return dateA - dateB;
-      });
-      sorted.forEach((b, i) => {
-        const [month, day] = b.date.split('-');
-        const dateStr = `${day}/${month}`;
-        const div = document.createElement('div');
-        div.className = 'birthday-item';
-        div.innerHTML = `<span>${dateStr} - ${b.name}</span> <button class='delete-btn' onclick='deleteBirthday(${birthdays.indexOf(b)})'>Supprimer</button>`;
-        list.appendChild(div);
-      });
-    }
-
-    function addBirthday() {
-      const name = document.getElementById('name').value.trim();
-      const date = document.getElementById('date').value.trim();
-      if (!name || !date) {
-        document.getElementById('msg').textContent = "Veuillez remplir tous les champs.";
-        return;
-      }
-      // Validation format JJ-MM
-      if (!/^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(date)) {
-        document.getElementById('msg').textContent = "Format de date invalide (MM-JJ).";
-        return;
-      }
-      // Contrôle doublons
-      if (birthdays.some(b => b.name.toLowerCase() === name.toLowerCase() && b.date === date)) {
-        document.getElementById('msg').textContent = "Cet anniversaire existe déjà.";
-        return;
-      }
-      birthdays.push({ name, date });
-      renderList();
-      document.getElementById('msg').textContent = "Anniversaire ajouté (modification locale, exporter pour sauvegarder).";
-      document.getElementById('name').value = '';
-      document.getElementById('date').value = '';
-    }
-
-    function deleteBirthday(index) {
-      if (confirm('Voulez-vous vraiment supprimer cet anniversaire ?')) {
-        birthdays.splice(index, 1);
-        renderList();
-        document.getElementById('msg').textContent = "Anniversaire supprimé (modification locale, exporter pour sauvegarder).";
-      }
-    }
-
-    function exportJSON() {
-      const textarea = document.getElementById('exported-json');
-      textarea.style.display = 'block';
-      textarea.value = JSON.stringify(birthdays, null, 2);
-      textarea.select();
-      document.getElementById('msg').textContent = "Copiez le contenu et remplacez birthdays.json sur GitHub.";
-    }
-
-    async function updateGithub() {
-      const token = document.getElementById('github-token').value.trim();
-      if (!token) {
-        document.getElementById('msg').textContent = "Veuillez entrer votre token GitHub.";
-        return;
-      }
-      document.getElementById('msg').textContent = "Mise à jour en cours...";
-      // 1. Récupérer le SHA du fichier
-      const apiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${githubFilePath}`;
-      let sha = '';
-      try {
-        const res = await fetch(apiUrl, {
-          headers: { Authorization: `token ${token}` }
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.message || 'Erreur récupération SHA');
-        }
-        const data = await res.json();
-        sha = data.sha;
-      } catch (e) {
-        document.getElementById('msg').textContent = `Erreur d'accès au fichier sur GitHub : ${e.message}`;
-        return;
-      }
-      // 2. Mettre à jour le fichier
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(birthdays, null, 2))));
-      const body = {
-        message: 'Mise à jour des anniversaires via maintenance.html',
-        content,
-        sha,
-        branch: githubBranch
-      };
-      try {
-        const res = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: {
-            Authorization: `token ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        });
-        if (res.ok) {
-          document.getElementById('msg').textContent = "Mise à jour réussie sur GitHub !";
-          document.getElementById('github-token').value = '';
-        } else {
-          const err = await res.json();
-          document.getElementById('msg').textContent = `Erreur lors de la mise à jour sur GitHub : ${err.message}`;
-        }
-      } catch (e) {
-        document.getElementById('msg').textContent = `Erreur réseau ou API GitHub : ${e.message}`;
-      }
-    }
+    let birthdays = [];
 
     // Charger le texte d'actualité au démarrage
     async function fetchServiceNews() {
@@ -373,6 +257,87 @@
       } catch (e) {
         document.getElementById('news-msg').textContent = `Erreur réseau ou API GitHub : ${e.message}`;
       }
+    }
+
+    function addBirthday() {
+      const name = document.getElementById('name').value.trim();
+      const date = document.getElementById('date').value.trim();
+      if (!name || !date) {
+        document.getElementById('msg').textContent = "Veuillez remplir tous les champs.";
+        return;
+      }
+      // Validation format JJ-MM
+      if (!/^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(date)) {
+        document.getElementById('msg').textContent = "Format de date invalide (MM-JJ).";
+        return;
+      }
+      // Contrôle doublons
+      if (birthdays.some(b => b.name.toLowerCase() === name.toLowerCase() && b.date === date)) {
+        document.getElementById('msg').textContent = "Cet anniversaire existe déjà.";
+        return;
+      }
+      birthdays.push({ name, date });
+      renderList();
+      document.getElementById('msg').textContent = "Anniversaire ajouté (modification locale, exporter pour sauvegarder).";
+      document.getElementById('name').value = '';
+      document.getElementById('date').value = '';
+    }
+
+    function deleteBirthday(index) {
+      if (confirm('Voulez-vous vraiment supprimer cet anniversaire ?')) {
+        birthdays.splice(index, 1);
+        renderList();
+        document.getElementById('msg').textContent = "Anniversaire supprimé (modification locale, exporter pour sauvegarder).";
+      }
+    }
+
+    async function fetchBirthdays() {
+      try {
+        const response = await fetch('./anniversaires-app/src/data/birthdays.json');
+        birthdays = await response.json();
+        renderList();
+      } catch (e) {
+        document.getElementById('msg').textContent = "Erreur de chargement du fichier JSON.";
+      }
+    }
+    fetchBirthdays();
+
+    function renderList() {
+      const list = document.getElementById('birthday-list');
+      list.innerHTML = '';
+      if (birthdays.length === 0) {
+        list.innerHTML = '<div>Aucun anniversaire enregistré.</div>';
+        return;
+      }
+      // Tri chronologique sur tous les anniversaires
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const currentYear = today.getFullYear();
+      const sorted = birthdays.slice().sort((a, b) => {
+        const [monthA, dayA] = a.date.split('-');
+        const [monthB, dayB] = b.date.split('-');
+        const dateA = new Date(currentYear, parseInt(monthA,10)-1, parseInt(dayA,10));
+        const dateB = new Date(currentYear, parseInt(monthB,10)-1, parseInt(dayB,10));
+        if (dateA < today) dateA.setFullYear(currentYear + 1);
+        if (dateB < today) dateB.setFullYear(currentYear + 1);
+        return dateA - dateB;
+      });
+      sorted.forEach((b, i) => {
+        const [month, day] = b.date.split('-');
+        const dateStr = `${day}/${month}`;
+        const div = document.createElement('div');
+        div.className = 'birthday-item';
+        div.innerHTML = `<span>${dateStr} - ${b.name}</span> <button class='delete-btn' onclick='deleteBirthday(${birthdays.indexOf(b)})'>Supprimer</button>`;
+        list.appendChild(div);
+      });
+    }
+
+    function exportJSON() {
+      const textarea = document.getElementById('exported-json');
+      textarea.style.display = 'block';
+      textarea.value = JSON.stringify(birthdays, null, 2);
+      textarea.select();
+      document.getElementById('msg').textContent = "Copiez le contenu et remplacez birthdays.json sur GitHub.";
     }
   </script>
 </body>
