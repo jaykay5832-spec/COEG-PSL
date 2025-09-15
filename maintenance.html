@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maintenance Anniversaires</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #222;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-top: 2vh;
+      font-size: 2.5em;
+    }
+    .birthday-list {
+      margin: 2vh 0;
+      width: 90vw;
+      max-width: 600px;
+      background: #333;
+      border-radius: 10px;
+      padding: 2vh 2vw;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .birthday-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1vh 0;
+      border-bottom: 1px solid #444;
+    }
+    .birthday-item:last-child {
+      border-bottom: none;
+    }
+    .delete-btn {
+      background: #c00;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5em 1em;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s;
+    }
+    .delete-btn:hover {
+      background: #f00;
+    }
+    .add-form {
+      margin: 2vh 0;
+      display: flex;
+      gap: 1vw;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .add-form input {
+      padding: 0.5em;
+      font-size: 1em;
+      border-radius: 5px;
+      border: 1px solid #888;
+    }
+    .add-form button {
+      background: #090;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .add-form button:hover {
+      background: #0c0;
+    }
+    .msg {
+      margin: 1vh 0;
+      color: #FFD700;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Maintenance des Anniversaires</h1>
+  <div class="add-form">
+    <input type="text" id="name" placeholder="Nom" required aria-label="Nom" />
+    <input type="date" id="date" required aria-label="Date de naissance" />
+    <button onclick="addBirthday()">Ajouter</button>
+  </div>
+  <div class="msg" id="msg"></div>
+  <div class="birthday-list" id="birthday-list"></div>
+  <button onclick="exportJSON()" style="margin:2vh 0;padding:0.7em 1.5em;font-size:1em;background:#0055aa;color:#fff;border:none;border-radius:5px;cursor:pointer;">Exporter le JSON</button>
+  <textarea id="exported-json" style="width:90vw;max-width:600px;height:120px;margin:1vh 0;display:none;"></textarea>
+  <button onclick="updateGithub()" style="margin:2vh 0;padding:0.7em 1.5em;font-size:1em;background:#24292f;color:#fff;border:none;border-radius:5px;cursor:pointer;">Mettre à jour sur GitHub</button>
+  <button onclick="updateGithubPR()" style="margin:2vh 0;padding:0.7em 1.5em;font-size:1em;background:#28a745;color:#fff;border:none;border-radius:5px;cursor:pointer;">Proposer une Pull Request</button>
+  <div style="margin:1vh 0;max-width:600px;">
+    <label for="github-token" style="color:#FFD700;font-weight:bold;">Token GitHub (jamais public)</label>
+    <input type="password" id="github-token" placeholder="Token GitHub" style="width:100%;padding:0.5em;font-size:1em;border-radius:5px;border:1px solid #888;" />
+  </div>
+
+  <script>
+    // Génère un nom de branche unique
+    function generateBranchName() {
+      const now = new Date();
+      return 'update-birthdays-' + now.toISOString().replace(/[:.]/g, '-');
+    }
+
+    async function updateGithubPR() {
+      const token = document.getElementById('github-token').value.trim();
+      if (!token) {
+        document.getElementById('msg').textContent = "Veuillez entrer votre token GitHub.";
+        return;
+      }
+      document.getElementById('msg').textContent = "Création de la branche et de la Pull Request en cours...";
+      // 1. Récupérer le SHA du dernier commit sur main
+      const refUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/git/ref/heads/${githubBranch}`;
+      let commitSha = '';
+      try {
+        const res = await fetch(refUrl, {
+          headers: { Authorization: `token ${token}` }
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Erreur récupération SHA main');
+        }
+        const data = await res.json();
+        commitSha = data.object.sha;
+      } catch (e) {
+        document.getElementById('msg').textContent = `Erreur d'accès à la branche main sur GitHub : ${e.message}`;
+        return;
+      }
+      // 2. Créer une nouvelle branche
+      const branchName = generateBranchName();
+      const createBranchUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/git/refs`;
+      try {
+        const res = await fetch(createBranchUrl, {
+          method: 'POST',
+          headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ref: `refs/heads/${branchName}`,
+            sha: commitSha
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Erreur création branche');
+        }
+      } catch (e) {
+        document.getElementById('msg').textContent = `Erreur lors de la création de la branche : ${e.message}`;
+        return;
+      }
+      // 3. Récupérer le SHA du fichier sur la nouvelle branche
+      const fileUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${githubFilePath}?ref=${branchName}`;
+      let fileSha = '';
+      try {
+        const res = await fetch(fileUrl, {
+          headers: { Authorization: `token ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          fileSha = data.sha;
+        }
+      } catch (e) {
+        fileSha = '';
+      }
+      // 4. Mettre à jour le fichier sur la branche
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(birthdays, null, 2))));
+      const body = {
+        message: 'Mise à jour des anniversaires via maintenance.html',
+        content,
+        branch: branchName
+      };
+      if (fileSha) body.sha = fileSha;
+      try {
+        const res = await fetch(fileUrl, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Erreur mise à jour fichier');
+        }
+      } catch (e) {
+        document.getElementById('msg').textContent = `Erreur lors de la mise à jour du fichier sur la branche : ${e.message}`;
+        return;
+      }
+      // 5. Créer la Pull Request
+      const prUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/pulls`;
+      try {
+        const res = await fetch(prUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: 'Mise à jour des anniversaires',
+            head: branchName,
+            base: githubBranch,
+            body: 'Mise à jour du fichier birthdays.json via l’interface maintenance.html.'
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('msg').textContent = `Pull Request créée ! Voir : ${data.html_url}`;
+          document.getElementById('github-token').value = '';
+        } else {
+          const err = await res.json();
+          document.getElementById('msg').textContent = `Erreur lors de la création de la Pull Request : ${err.message}`;
+        }
+      } catch (e) {
+        document.getElementById('msg').textContent = `Erreur réseau ou API GitHub lors de la PR : ${e.message}`;
+      }
+    }
+    // Config GitHub
+    const githubOwner = 'jaykay5832-spec';
+    const githubRepo = 'COEG-PSL';
+    const githubFilePath = 'anniversaires-app/src/data/birthdays.json';
+    const githubBranch = 'main';
+
+    let birthdays = [];
+
+    async function fetchBirthdays() {
+      try {
+        const response = await fetch('./anniversaires-app/src/data/birthdays.json');
+        birthdays = await response.json();
+        renderList();
+      } catch (e) {
+        document.getElementById('msg').textContent = "Erreur de chargement du fichier JSON.";
+      }
+    }
+
+    function renderList() {
+      const list = document.getElementById('birthday-list');
+      list.innerHTML = '';
+      if (birthdays.length === 0) {
+        list.innerHTML = '<div>Aucun anniversaire enregistré.</div>';
+        return;
+      }
+      birthdays.forEach((b, i) => {
+        const div = document.createElement('div');
+        div.className = 'birthday-item';
+        div.innerHTML = `<span>${b.date} - ${b.name}</span> <button class='delete-btn' onclick='deleteBirthday(${i})'>Supprimer</button>`;
+        list.appendChild(div);
+      });
+    }
+
+    function addBirthday() {
+      const name = document.getElementById('name').value.trim();
+      const date = document.getElementById('date').value;
+      if (!name || !date) {
+        document.getElementById('msg').textContent = "Veuillez remplir tous les champs.";
+        return;
+      }
+      // Validation format date
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        document.getElementById('msg').textContent = "Format de date invalide (AAAA-MM-JJ).";
+        return;
+      }
+      // Contrôle doublons
+      if (birthdays.some(b => b.name.toLowerCase() === name.toLowerCase() && b.date === date)) {
+        document.getElementById('msg').textContent = "Cet anniversaire existe déjà.";
+        return;
+      }
+      birthdays.push({ name, date });
+      renderList();
+      document.getElementById('msg').textContent = "Anniversaire ajouté (modification locale, exporter pour sauvegarder).";
+      document.getElementById('name').value = '';
+      document.getElementById('date').value = '';
+    }
+
+    function deleteBirthday(index) {
+      if (confirm('Voulez-vous vraiment supprimer cet anniversaire ?')) {
+        birthdays.splice(index, 1);
+        renderList();
+        document.getElementById('msg').textContent = "Anniversaire supprimé (modification locale, exporter pour sauvegarder).";
+      }
+    }
+
+    function exportJSON() {
+      const textarea = document.getElementById('exported-json');
+      textarea.style.display = 'block';
+      textarea.value = JSON.stringify(birthdays, null, 2);
+      textarea.select();
+      document.getElementById('msg').textContent = "Copiez le contenu et remplacez birthdays.json sur GitHub.";
+    }
+
+    async function updateGithub() {
+      const token = document.getElementById('github-token').value.trim();
+      if (!token) {
+        document.getElementById('msg').textContent = "Veuillez entrer votre token GitHub.";
+        return;
+      }
+      document.getElementById('msg').textContent = "Mise à jour en cours...";
+      // 1. Récupérer le SHA du fichier
+      const apiUrl = `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${githubFilePath}`;
+      let sha = '';
+      try {
+        const res = await fetch(apiUrl, {
+          headers: { Authorization: `token ${token}` }
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || 'Erreur récupération SHA');
+        }
+        const data = await res.json();
+        sha = data.sha;
+      } catch (e) {
+        document.getElementById('msg').textContent = `Erreur d'accès au fichier sur GitHub : ${e.message}`;
+        return;
+      }
+      // 2. Mettre à jour le fichier
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(birthdays, null, 2))));
+      const body = {
+        message: 'Mise à jour des anniversaires via maintenance.html',
+        content,
+        sha,
+        branch: githubBranch
+      };
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+        if (res.ok) {
+          document.getElementById('msg').textContent = "Mise à jour réussie sur GitHub !";
+          document.getElementById('github-token').value = '';
+        } else {
+          const err = await res.json();
+          document.getElementById('msg').textContent = `Erreur lors de la mise à jour sur GitHub : ${err.message}`;
+        }
+      } catch (e) {
+        document.getElementById('msg').textContent = `Erreur réseau ou API GitHub : ${e.message}`;
+      }
+    }
+
+    fetchBirthdays();
+  </script>
+</body>
+</html>
