@@ -144,6 +144,7 @@
 <body>
   <div class="section" id="local-news">
     <h2>📰 Actualités du service</h2>
+    <div id="service-news-text" style="font-size:2vw;margin-bottom:2vh;"></div>
     <div class="carrousel" id="news-carrousel">
       <div class="contenu-carrousel">
         <!-- Slide 1 -->
@@ -241,11 +242,25 @@
       }
     }
 
+    // Charger et afficher le texte d'actualité
+    async function loadServiceNews() {
+      try {
+        const response = await fetch('./anniversaires-app/src/data/news.json');
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('service-news-text').textContent = data.text || '';
+        }
+      } catch (e) {
+        document.getElementById('service-news-text').textContent = '';
+      }
+    }
+
     // Démarrer le carrousel
     rotateNews();
 
-    // Appeler la fonction au chargement
+    // Appeler les fonctions au chargement
     loadBirthdays();
+    loadServiceNews();
   </script>
 </body>
 </html>
