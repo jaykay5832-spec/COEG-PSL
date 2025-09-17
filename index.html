@@ -5,6 +5,33 @@
   <title>Actualités en Gare Saint-Lazare</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    /* Feu d'artifice */
+    .fireworks {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .firework {
+      position: absolute;
+      bottom: 0;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 40%, rgb(161,0,107) 100%);
+      opacity: 0.8;
+      animation: firework-burst 1.2s ease-out forwards;
+    }
+    .firework.left { left: 5vw; }
+    .firework.right { right: 5vw; }
+    @keyframes firework-burst {
+      0% { transform: scale(0.2) translateY(0); opacity: 1; }
+      60% { transform: scale(1.2) translateY(-40px); opacity: 1; }
+      100% { transform: scale(0.8) translateY(-60px); opacity: 0; }
+    }
     html, body {
       margin: 0;
       padding: 0;
@@ -28,8 +55,34 @@
     .section h2 {
       font-size: 5vw;
       margin: 0 0 2vh 0;
-      text-align: left;
     }
+    .oscill-title {
+      position: relative;
+      display: inline-block;
+      text-align: center;
+    }
+    .oscill-light {
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px 4px rgba(161,0,107,0.7);
+      animation: oscillate-light 2s ease-in-out infinite, oscillate-color 1s ease-in-out infinite;
+      z-index: 1;
+    }
+    @keyframes oscillate-light {
+      0% { left: 0; }
+      50% { left: calc(100% - 8px); }
+      100% { left: 0; }
+    }
+    @keyframes oscillate-color {
+      0% { background: radial-gradient(circle, #fff 60%, rgba(161,0,107,0.2) 100%); }
+      50% { background: radial-gradient(circle, rgb(161,0,107) 60%, rgba(161,0,107,0.2) 100%); }
+      100% { background: radial-gradient(circle, #fff 60%, rgba(161,0,107,0.2) 100%); }
+    }
+    /* Correction : suppression des doublons et des accolades superflues */
     .carrousel {
       flex: 1;
       display: flex;
@@ -144,9 +197,17 @@
 </head>
 <body>
   <div class="section" id="local-news">
-    <h2>📰 Actualités du service</h2>
+  <div style="position:relative;display:inline-block;width:100%;">
+    <h2 class="oscill-title" style="color:rgb(161, 0, 107);margin-bottom:24px;position:relative;display:block;width:100%;">
+      <span style="position:relative;display:inline-block;width:100%;">
+        <img src="Logo_SNCF_Gares_&_Connexions_-_2020.svg.png" alt="Logo SNCF" style="height:1.2em;vertical-align:middle;margin-right:0.5em;">Actualités du service
+        <span class="oscill-light"></span>
+      </span>
+    </h2>
+  </div>
     <div class="carrousel" id="news-carrousel">
-      <div class="contenu-carrousel">
+      <div class="contenu-carrousel" style="position:relative;">
+        <div class="fireworks" id="fireworks"></div>
         <!-- Slide 1 -->
         <div class="news-item active">
           <h3 id="service-news-title">Bienvenue à la gare Saint-Lazare !</h3>
@@ -233,6 +294,7 @@
 
       const list = document.getElementById('birthday-list');
       list.innerHTML = '';
+      let hasBirthdayToday = false;
       if (upcoming.length === 0) {
         list.innerHTML = '<div>Aucun anniversaire dans les 7 jours à venir.</div>';
       } else {
@@ -241,11 +303,20 @@
           const dateStr = `${day}/${month}`;
           const date = new Date(currentYear, parseInt(month,10)-1, parseInt(day,10));
           const isToday = date.getTime() === today.getTime();
+          if (isToday) hasBirthdayToday = true;
           const div = document.createElement('div');
           div.className = 'birthday-person' + (isToday ? ' birthday-today' : '');
           div.textContent = `${dateStr} - ${b.name}` + (isToday ? ' 🎉' : '');
           list.appendChild(div);
         });
+      }
+      // Affiche le feu d'artifice si anniversaire aujourd'hui et slide anniversaire active
+      const fireworks = document.getElementById('fireworks');
+      if (hasBirthdayToday && document.querySelector('.birthday-slide.active')) {
+        fireworks.innerHTML = '<div class="firework left"></div><div class="firework right"></div>';
+        setTimeout(() => { fireworks.innerHTML = ''; }, 1500);
+      } else {
+        fireworks.innerHTML = '';
       }
     }
 
