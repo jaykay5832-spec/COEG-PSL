@@ -5,6 +5,39 @@
   <title>Maintenance Anniversaires</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    /* Fenêtre flottante token Github */
+    .github-token-float {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      width: 260px;
+      background: #222;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      padding: 18px 16px 16px 16px;
+      z-index: 1000;
+      color: #FFD700;
+      font-size: 1em;
+      transition: box-shadow 0.2s;
+    }
+    .github-token-float label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .github-token-float input {
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #FFD700;
+      padding: 6px;
+      background: #333;
+      color: #FFD700;
+    }
+    .github-token-float button {
+      width: 100%;
+      margin-bottom: 6px;
+    }
     body {
       background: #222;
       color: #fff;
@@ -136,9 +169,13 @@
         <button onclick="updateServiceNews()" class="btn btn-primary">Mettre à jour</button>
         <button onclick="updateServiceNewsGithub()" class="btn btn-github">Mettre à jour sur GitHub</button>
       </div>
-      <label for="github-token" style="color:#FFD700;font-weight:bold;">Token GitHub (jamais public)</label>
+    <!-- Fenêtre flottante Token Github -->
+    <div class="github-token-float">
+      <label for="github-token">Token GitHub (jamais public)</label>
       <input type="password" id="github-token" placeholder="Token GitHub" />
+      <button onclick="window.open('https://sncf-my.sharepoint.com/:t:/r/personal/8308172x_commun_ad_sncf_fr/Documents/@_SNCF/token%20GITHUB.txt?csf=1&web=1&e=68qVzB', '_blank')" class="btn btn-github">Ouvrir le lien du token</button>
       <div id="news-msg"></div>
+    </div>
     </div>
 
     <div class="encart">
@@ -355,8 +392,8 @@
         return dateA - dateB;
       });
       sorted.forEach((b, i) => {
-        const [month, day] = b.date.split('-');
-        const dateStr = `${day}/${month}`;
+  const [month, day] = b.date.split('-');
+  const dateStr = `${day}-${month}`;
         const div = document.createElement('div');
         div.className = 'birthday-item';
         div.innerHTML = `<span>${dateStr} - ${b.name}</span> <button class='delete-btn' onclick='deleteBirthday(${birthdays.indexOf(b)})'>Supprimer</button>`;
